@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo Educativo de Matemática</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f2f2f2;
+            margin: 0;
+        }
+
+        .game-container {
+            text-align: center;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 400px;
+        }
+
+        button {
+            margin: 10px;
+            padding: 15px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        button:active {
+            background-color: #3e8e41;
+        }
+
+        #question {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        #feedback {
+            margin-top: 20px;
+            font-size: 20px;
+            color: #333;
+        }
+
+        #timer {
+            font-size: 18px;
+            margin-top: 20px;
+        }
+
+        #score {
+            font-size: 22px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Jogo de Matemática</h1>
+        <div id="question-container">
+            <span id="question">Carregando...</span>
+        </div>
+        <div id="options-container">
+            <button class="answer-button" onclick="checkAnswer(0)">Resposta 1</button>
+            <button class="answer-button" onclick="checkAnswer(1)">Resposta 2</button>
+            <button class="answer-button" onclick="checkAnswer(2)">Resposta 3</button>
+            <button class="answer-button" onclick="checkAnswer(3)">Resposta 4</button>
+        </div>
+        <div id="feedback"></div>
+        <div id="timer">Tempo: <span id="time-left">30</span>s</div>
+        <div id="score">Pontuação: 0</div>
+    </div>
+
+    <script>
+        let score = 0;
+        let difficulty = 1;
+        let timerInterval;
+        let timeLeft = 30;
+        let currentAnswer = 0;
+        let currentQuestion;
+        let questionOptions = [];
+
+        // Função para gerar questões aleatórias
+        function generateQuestion() {
+            let num1 = Math.floor(Math.random() * (10 * difficulty)) + 1;
+            let num2 = Math.floor(Math.random() * (10 * difficulty)) + 1;
+            let operation = Math.floor(Math.random() * 3);
+
+            let questionText = '';
+            let correctAnswer = 0;
+
+            switch (operation) {
+                case 0: // Adição
+                    questionText = `${num1} + ${num2} = ?`;
+                    correctAnswer = num1 + num2;
+                    break;
+                case 1: // Subtração
+                    questionText = `${num1} - ${num2} = ?`;
+                    correctAnswer = num1 - num2;
+                    break;
+                case 2: // Multiplicação
+                    questionText = `${num1} * ${num2} = ?`;
+                    correctAnswer = num1 * num2;
+                    break;
+            }
+
+            currentAnswer = correctAnswer;
+
+            // Gerar opções de resposta
+            questionOptions = [correctAnswer];
+            while (questionOptions.length < 4) {
+                let randomAnswer = Math.floor(Math.random() * (num1 * num2 * 2));
+                if (!questionOptions.includes(randomAnswer)) {
+                    questionOptions.push(randomAnswer);
+                }
+            }
+
+            questionOptions = questionOptions.sort(() => Math.random() - 0.5); // Embaralhar as opções
+
+            // Atualizar a tela com a pergunta e as opções
+            document.getElementById('question').innerText = questionText;
+            const buttons = document.querySelectorAll('.answer-button');
+            buttons.forEach((button, index) => {
+                button.innerText = questionOptions[index];
+            });
+        }
+
+        // Função para iniciar o temporizador
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    document.getElementById('time-left').innerText = timeLeft;
+                } else {
+                    clearInterval(timerInterval);
+                    showFeedback(false); // Resposta errada se o tempo acabar
+                }
+            }, 1000);
+        }
+
+        // Função para verificar a resposta
+        function checkAnswer(answerIndex) {
+            const selectedAnswer = questionOptions[answerIndex];
+
+            if (selectedAnswer === currentAnswer) {
+                score++;
+                difficulty = Math.floor(score / 5) + 1; // Aumenta a dificuldade a cada 5 pontos
+                showFeedback(true);
+            } else {
+                showFeedback(false);
+            }
+
+            setTimeout(() => {
+                if (score < 20) {
+                    generateQuestion();
+                    timeLeft = 30; // Resetar o tempo
+                    document.getElementById('time-left').innerText = timeLeft;
+                    startTimer();
+                } else {
+                    document.getElementById('question').innerText = 'Você ganhou!';
+                    clearInterval(timerInterval);
+                }
+            }, 1000);
+        }
+
+        // Função para mostrar o feedback
+        function showFeedback(correct) {
+            const feedback = document.getElementById('feedback');
+            if (correct) {
+                feedback.innerText = 'Resposta Correta!';
+                feedback.style.color = 'green';
+                playSound('correct');
+            } else {
+                feedback.innerText = 'Resposta Errada!';
+                feedback.style.color = 'red';
+                playSound('incorrect');
+            }
+            document.getElementById('score').innerText = `Pontuação: ${score}`;
+        }
+
+        // Função para tocar o som de feedback
+        function playSound(type) {
+            let audio = new Audio(type === 'correct' ? 'correct.mp3' : 'incorrect.mp3');
+            audio.play();
+        }
+
+        // Função para iniciar o jogo
+        function startGame() {
+            score = 0;
+            difficulty = 1;
+            timeLeft = 30;
+            document.getElementById('score').innerText = `Pontuação: ${score}`;
+            generateQuestion();
+            startTimer();
+        }
+
+        startGame();
+    </script>
+</body>
+</html>
