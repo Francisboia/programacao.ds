@@ -1,0 +1,4 @@
+nome = input("digite seu nome dog: ")
+idade = input("quantos anos cz: ")
+idade = int(idade)
+print (f"dae {nome}, você tem {idade} anos") 
