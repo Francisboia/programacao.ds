@@ -1,0 +1,34 @@
+let i = 5;
+
+while(i >= 1) {
+    console.log(i);
+    i--;
+}
+
+console.log("Olá, mundo!")
+
+function media(n1, n2, n3){
+    return(n1 + n2 +n3 / 3)
+}
+console.log(media(11, 24, 32))
+
+function media(n1, n2, n3){
+    return(n1 + n2 +n3 / 3)
+}
+console.log(media(11, 24, 32))
+
+https://www.programiz.com/online-compiler/9Z2EoeVabcsEu
+
+const num = 7;
+
+if (num/2 === 0) {
+    console.log("par")
+}
+else {
+    console.log("impar")
+}
+
+
+let idade = 30;
+
+console.log(idade);
